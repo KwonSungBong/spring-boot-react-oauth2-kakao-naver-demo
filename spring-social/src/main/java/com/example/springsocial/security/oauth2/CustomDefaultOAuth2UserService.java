@@ -47,6 +47,19 @@ public class CustomDefaultOAuth2UserService implements OAuth2UserService<OAuth2U
         this.restOperations = restTemplate;
     }
 
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+                .getUserInfoEndpoint().getUserNameAttributeName();
+
+        Map<String, Object> userAttributes = loadUserAttributes(registrationId, loadUserResponse(userRequest));
+
+        Set<GrantedAuthority> authorities = Collections.singleton(new OAuth2UserAuthority(userAttributes));
+
+        return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
+    }
+
     public ResponseEntity<Map<String, Object>> loadUserResponse(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         Assert.notNull(userRequest, "userRequest cannot be null");
 
@@ -97,19 +110,6 @@ public class CustomDefaultOAuth2UserService implements OAuth2UserService<OAuth2U
         }
 
         return response;
-    }
-
-    @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
-                .getUserInfoEndpoint().getUserNameAttributeName();
-
-        Map<String, Object> userAttributes = loadUserAttributes(registrationId, loadUserResponse(userRequest));
-
-        Set<GrantedAuthority> authorities = Collections.singleton(new OAuth2UserAuthority(userAttributes));
-
-        return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
     }
 
     private Map<String, Object> loadUserAttributes(String registrationId, ResponseEntity response) {
