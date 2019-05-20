@@ -6,6 +6,8 @@ import { Link, Redirect } from 'react-router-dom'
 import fbLogo from '../../img/fb-logo.png';
 import googleLogo from '../../img/google-logo.png';
 import githubLogo from '../../img/github-logo.png';
+import kakaoLogo from '../../img/kakaolink_btn_medium.png';
+import naverLogo from '../../img/naver_green.png';
 import Alert from 'react-s-alert';
 
 class Login extends Component {
@@ -61,9 +63,9 @@ class SocialLogin extends Component {
                 <a className="btn btn-block social-btn github" href={GITHUB_AUTH_URL}>
                     <img src={githubLogo} alt="Github" /> Log in with Github</a>
                 <a className="btn btn-block social-btn github" href={KAKAO_AUTH_URL}>
-                    <img src={githubLogo} alt="Kakao" /> Log in with Kakao</a>
+                    <img src={kakaoLogo} alt="Kakao" /> Log in with Kakao</a>
                 <a className="btn btn-block social-btn github" href={NAVER_AUTH_URL}>
-                    <img src={githubLogo} alt="Naver" /> Log in with Naver</a>
+                    <img src={naverLogo} alt="Naver" /> Log in with Naver</a>
             </div>
         );
     }
