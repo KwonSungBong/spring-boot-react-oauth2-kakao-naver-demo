@@ -5,9 +5,15 @@ import com.example.springsocial.security.oauth2.CustomOAuth2UserService;
 import com.example.springsocial.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.example.springsocial.security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.example.springsocial.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.example.springsocial.security.sample.CustomOAuth2AccessTokenResponseHttpMessageConverter;
+import com.example.springsocial.security.sample.CustomRequestEntityConverter;
+import com.example.springsocial.security.sample.CustomTokenResponseConverter;
+import com.example.springsocial.security.sample.RestTemplateHeaderModifierInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,9 +24,20 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -80,6 +97,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+//    @Bean
+//    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient(){
+//        DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+//                new DefaultAuthorizationCodeTokenResponseClient();
+//        accessTokenResponseClient.setRequestEntityConverter(new CustomRequestEntityConverter());
+//
+//        CustomOAuth2AccessTokenResponseHttpMessageConverter tokenResponseHttpMessageConverter =
+//                new CustomOAuth2AccessTokenResponseHttpMessageConverter();
+//        tokenResponseHttpMessageConverter.setTokenResponseConverter(new CustomTokenResponseConverter());
+//        RestTemplate restTemplate = new RestTemplate(Arrays.asList(
+//                new FormHttpMessageConverter(), tokenResponseHttpMessageConverter));
+//        restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+//
+//        List<ClientHttpRequestInterceptor> interceptors
+//                = restTemplate.getInterceptors();
+//        if (CollectionUtils.isEmpty(interceptors)) {
+//            interceptors = new ArrayList<>();
+//        }
+//        interceptors.add(new RestTemplateHeaderModifierInterceptor());
+//        restTemplate.setInterceptors(interceptors);
+//
+//        accessTokenResponseClient.setRestOperations(restTemplate);
+//        return accessTokenResponseClient;
+//    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -125,6 +167,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .userInfoEndpoint()
                         .userService(customOAuth2UserService)
                         .and()
+//                    .tokenEndpoint()
+//                        .accessTokenResponseClient(accessTokenResponseClient())
+//                        .and()
                     .successHandler(oAuth2AuthenticationSuccessHandler)
                     .failureHandler(oAuth2AuthenticationFailureHandler);
 
