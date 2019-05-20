@@ -1,12 +1,10 @@
 package com.example.springsocial.controller;
 
 import com.example.springsocial.exception.BadRequestException;
+import com.example.springsocial.exception.TokenRefreshException;
 import com.example.springsocial.model.RefreshToken;
 import com.example.springsocial.model.User;
-import com.example.springsocial.payload.ApiResponse;
-import com.example.springsocial.payload.AuthResponse;
-import com.example.springsocial.payload.LoginRequest;
-import com.example.springsocial.payload.SignUpRequest;
+import com.example.springsocial.payload.*;
 import com.example.springsocial.repository.UserRepository;
 import com.example.springsocial.security.TokenProvider;
 import com.example.springsocial.service.AuthService;
@@ -44,9 +42,6 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-//        String token = tokenProvider.createToken(authentication);
-//        return ResponseEntity.ok(new AuthResponse(token));
-
         return authService.createAndPersistRefreshTokenForAccessInfo(authentication)
                 .map(RefreshToken::getToken)
                 .map(refreshToken -> {
@@ -73,4 +68,14 @@ public class AuthController {
                 .body(new ApiResponse(true, "User registered successfully@"));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity refreshJwtToken(@RequestBody RefreshRequest refreshRequest) {
+
+        return authService.refreshJwtToken(refreshRequest)
+                .map(updatedToken -> {
+                    String refreshToken = refreshRequest.getRefreshToken();
+                    return ResponseEntity.ok(new AuthResponse(updatedToken, refreshToken, tokenProvider.getExpiryDuration()));
+                })
+                .orElseThrow(() -> new TokenRefreshException(refreshRequest.getRefreshToken(), "Unexpected error during token refresh. Please logout and login again."));
+    }
 }

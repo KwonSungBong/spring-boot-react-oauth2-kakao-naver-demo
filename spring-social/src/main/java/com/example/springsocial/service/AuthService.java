@@ -1,7 +1,9 @@
 package com.example.springsocial.service;
 
+import com.example.springsocial.exception.TokenRefreshException;
 import com.example.springsocial.model.*;
 import com.example.springsocial.payload.LoginRequest;
+import com.example.springsocial.payload.RefreshRequest;
 import com.example.springsocial.payload.SignUpRequest;
 import com.example.springsocial.repository.UserRepository;
 import com.example.springsocial.security.TokenProvider;
@@ -91,20 +93,20 @@ public class AuthService {
         return Optional.ofNullable(refreshToken);
     }
 
-//    public Optional<String> refreshJwtToken(TokenRefreshRequest tokenRefreshRequest) {
-//        String requestRefreshToken = tokenRefreshRequest.getRefreshToken();
-//
-//        return Optional.of(refreshTokenService.findByToken(requestRefreshToken)
-//                .map(refreshToken -> {
-//                    refreshTokenService.verifyExpiration(refreshToken);
-//                    userDeviceService.verifyRefreshAvailability(refreshToken);
-//                    refreshTokenService.increaseCount(refreshToken);
-//                    return refreshToken;
-//                })
-//                .map(RefreshToken::getUserDevice)
-//                .map(UserDevice::getUser)
-//                .map(User::getId).map(this::generateTokenFromUserId))
-//                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Missing refresh token in database.Please login again"));
-//    }
+    public Optional<String> refreshJwtToken(RefreshRequest refreshRequest) {
+        String requestRefreshToken = refreshRequest.getRefreshToken();
+
+        return Optional.of(refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshToken -> {
+                    refreshTokenService.verifyExpiration(refreshToken);
+                    userAccessInfoService.verifyRefreshAvailability(refreshToken);
+                    refreshTokenService.increaseCount(refreshToken);
+                    return refreshToken;
+                })
+                .map(RefreshToken::getUserAccessInfo)
+                .map(UserAccessInfo::getUser)
+                .map(User::getId).map(this::generateTokenFromUserId))
+                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Missing refresh token in database.Please login again"));
+    }
 
 }
