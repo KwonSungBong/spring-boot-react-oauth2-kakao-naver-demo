@@ -35,6 +35,18 @@ public class User {
 
     private String providerId;
 
+
+    public User() {
+        super();
+    }
+
+    public User(User user) {
+        id = user.getId();
+        email = user.getEmail();
+        password = user.getPassword();
+        email = user.getEmail();
+    }
+
     public Long getId() {
         return id;
     }

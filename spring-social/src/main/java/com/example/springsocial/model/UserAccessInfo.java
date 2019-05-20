@@ -64,4 +64,12 @@ public class UserAccessInfo {
     public void setRefreshActive(Boolean refreshActive) {
         isRefreshActive = refreshActive;
     }
+
+    public RefreshToken getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(RefreshToken refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 }

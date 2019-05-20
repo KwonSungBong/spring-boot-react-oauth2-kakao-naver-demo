@@ -12,11 +12,14 @@ class OAuth2RedirectHandler extends Component {
     };
 
     render() {        
-        const token = this.getUrlParameter('token');
+        const accessToken = this.getUrlParameter('accessToken');
+        const refreshToken = this.getUrlParameter('refreshToken');
+        const tokenType = this.getUrlParameter('tokenType');
+        const expiryDuration = this.getUrlParameter('expiryDuration');
         const error = this.getUrlParameter('error');
 
-        if(token) {
-            localStorage.setItem(ACCESS_TOKEN, token);
+        if(accessToken) {
+            localStorage.setItem(ACCESS_TOKEN, accessToken);
             return <Redirect to={{
                 pathname: "/profile",
                 state: { from: this.props.location }

@@ -10,6 +10,12 @@ public class AuthResponse {
         this.accessToken = accessToken;
     }
 
+    public AuthResponse(String accessToken, String refreshToken, Long expiryDuration) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.expiryDuration = expiryDuration;
+    }
+
     public String getAccessToken() {
         return accessToken;
     }

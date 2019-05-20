@@ -2,9 +2,13 @@ package com.example.springsocial.security.oauth2;
 
 import com.example.springsocial.config.AppProperties;
 import com.example.springsocial.exception.BadRequestException;
+import com.example.springsocial.model.RefreshToken;
+import com.example.springsocial.payload.AuthResponse;
 import com.example.springsocial.security.TokenProvider;
+import com.example.springsocial.service.AuthService;
 import com.example.springsocial.util.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -22,7 +26,11 @@ import static com.example.springsocial.security.oauth2.HttpCookieOAuth2Authoriza
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    @Autowired
     private TokenProvider tokenProvider;
+
+    @Autowired
+    private AuthService authService;
 
     private AppProperties appProperties;
 
@@ -30,9 +38,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
 
     @Autowired
-    OAuth2AuthenticationSuccessHandler(TokenProvider tokenProvider, AppProperties appProperties,
+    OAuth2AuthenticationSuccessHandler(AppProperties appProperties,
                                        HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository) {
-        this.tokenProvider = tokenProvider;
         this.appProperties = appProperties;
         this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
     }
@@ -60,11 +67,20 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
 
-        String token = tokenProvider.createToken(authentication);
+//        String token = tokenProvider.createToken(authentication);
 
-        return UriComponentsBuilder.fromUriString(targetUrl)
-                .queryParam("token", token)
-                .build().toUriString();
+        return authService.createAndPersistRefreshTokenForAccessInfo(authentication)
+                .map(RefreshToken::getToken)
+                .map(refreshToken -> {
+                    String jwtToken = tokenProvider.createToken(authentication);
+                    return UriComponentsBuilder.fromUriString(targetUrl)
+                            .queryParam("accessToken", jwtToken)
+                            .queryParam("refreshToken", refreshToken)
+                            .queryParam("tokenType", "Bearer")
+                            .queryParam("expiryDuration", tokenProvider.getExpiryDuration())
+                            .build().toUriString();
+                })
+                .orElseThrow(() -> new RuntimeException("Couldn't create refresh token for: []"));
     }
 
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
