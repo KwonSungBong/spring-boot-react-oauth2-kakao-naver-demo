@@ -18,8 +18,16 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest httpServletRequest,
                          HttpServletResponse httpServletResponse,
                          AuthenticationException e) throws IOException, ServletException {
-        logger.error("Responding with unauthorized error. Message - {}", e.getMessage());
-        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                e.getLocalizedMessage());
+
+        final String expired = (String) httpServletRequest.getAttribute("expired");
+        System.out.println(expired);
+        if (expired!=null){
+            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,expired);
+        }else{
+            logger.error("Responding with unauthorized error. Message - {}", e.getMessage());
+            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                    e.getLocalizedMessage());
+//            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Invalid Login details");
+        }
     }
 }

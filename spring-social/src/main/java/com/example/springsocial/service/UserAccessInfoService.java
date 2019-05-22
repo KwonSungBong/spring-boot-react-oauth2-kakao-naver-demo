@@ -39,8 +39,9 @@ public class UserAccessInfoService {
         UserAccessInfo userAccessInfo = findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new TokenRefreshException(refreshToken.getToken(), "No device found for the matching token. Please login again"));
 
-        if (!userAccessInfo.getRefreshActive()) {
-            throw new TokenRefreshException(refreshToken.getToken(), "Refresh blocked for the device. Please login through a different device");
-        }
+//        todo
+//        if (!userAccessInfo.getRefreshActive()) {
+//            throw new TokenRefreshException(refreshToken.getToken(), "Refresh blocked for the device. Please login through a different device");
+//        }
     }
 }

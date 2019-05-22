@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ACCESS_TOKEN } from '../../constants';
+import { ACCESS_TOKEN, REFRESH_TOKEN, TOKEN_TYPE, EXPIRY_DURATION } from '../../constants';
 import { Redirect } from 'react-router-dom'
 
 class OAuth2RedirectHandler extends Component {
@@ -20,6 +20,9 @@ class OAuth2RedirectHandler extends Component {
 
         if(accessToken) {
             localStorage.setItem(ACCESS_TOKEN, accessToken);
+            localStorage.setItem(REFRESH_TOKEN, refreshToken);
+            localStorage.setItem(TOKEN_TYPE, tokenType);
+            localStorage.setItem(EXPIRY_DURATION, expiryDuration);
             return <Redirect to={{
                 pathname: "/profile",
                 state: { from: this.props.location }

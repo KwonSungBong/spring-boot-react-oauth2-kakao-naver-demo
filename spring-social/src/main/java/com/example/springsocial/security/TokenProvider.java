@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.Date;
 
@@ -69,7 +70,7 @@ public class TokenProvider {
         return Long.parseLong(claims.getSubject());
     }
 
-    public boolean validateToken(String authToken) {
+    public boolean validateToken(String authToken, HttpServletRequest request) {
         try {
             Jwts.parser().setSigningKey(appProperties.getAuth().getTokenSecret()).parseClaimsJws(authToken);
             return true;
@@ -78,6 +79,7 @@ public class TokenProvider {
         } catch (MalformedJwtException ex) {
             logger.error("Invalid JWT token");
         } catch (ExpiredJwtException ex) {
+            request.setAttribute("expired",ex.getMessage());
             logger.error("Expired JWT token");
         } catch (UnsupportedJwtException ex) {
             logger.error("Unsupported JWT token");
